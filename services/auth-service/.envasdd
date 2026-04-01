@@ -1,0 +1,4 @@
+﻿PORT=4001
+MONGODB_URI=mongodb://localhost:27017/auth-service
+SERVICE_NAME=auth-service
+JWT_SECRET=replace_this_secret

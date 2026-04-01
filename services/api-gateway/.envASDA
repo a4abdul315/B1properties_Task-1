@@ -1,0 +1,6 @@
+﻿PORT=4000
+JWT_SECRET=replace_this_secret
+AUTH_SERVICE_URL=http://localhost:4001
+MEDIA_SERVICE_URL=http://localhost:4002
+NOTIFICATION_SERVICE_URL=http://localhost:4003
+SYNC_SERVICE_URL=http://localhost:4004
