@@ -139,8 +139,9 @@ Create these files if they do not already exist:
   - `services/api-gateway/.env`
   - `services/auth-service/.env`
   - `services/media-service/.env`
-  - `services/sync-service/.env`
   - `services/notification-service/.env`
+- Use that same secret value as `SYNC_SERVICE_JWT_SECRET` in:
+  - `services/sync-service/.env`
 - Each service should use its own `MONGODB_URI`
 - The frontend should point to the API gateway base URL
 
@@ -176,7 +177,7 @@ JWT_SECRET=replace_this_secret
 ```env
 PORT=4004
 MONGODB_URI=mongodb://127.0.0.1:27017/sync-service
-JWT_SECRET=replace_this_secret
+SYNC_SERVICE_JWT_SECRET=replace_this_secret
 MEDIA_SERVICE_URL=http://127.0.0.1:4002
 NOTIFICATION_SERVICE_URL=http://127.0.0.1:4003
 ```

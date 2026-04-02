@@ -19,6 +19,7 @@ export default function SyncPage() {
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
 
   const villaId = useMemo(() => {
     if (user?.role === "CLIENT") return user?.villaId || "";
@@ -26,10 +27,6 @@ export default function SyncPage() {
   }, [user, villaIdInput]);
 
   const handleSync = async () => {
-    if (!user?.id) {
-      setError("User missing");
-      return;
-    }
     if (!villaId) {
       setError("Villa ID is required to run sync");
       return;
@@ -37,6 +34,7 @@ export default function SyncPage() {
 
     setLoading(true);
     setError("");
+    setSuccess("");
     setResult(null);
     setDownloadedIds([]);
 
@@ -51,13 +49,18 @@ export default function SyncPage() {
 
     try {
       const response = await api.post("/sync", {
-        userId: user.id,
         villaId,
         deviceVersions: parsedVersions,
         networkName,
       });
       setWifiConnected(true);
       setResult(response.data);
+      try {
+        const activityResponse = await api.get(`/media/activity/${villaId}`);
+        setDownloadedIds(activityResponse.data.downloadedFileIds || []);
+      } catch (activityError) {
+        // Keep sync results available even if activity lookup fails.
+      }
     } catch (err) {
       setError(err.response?.data?.error || "Sync failed");
       setWifiConnected(false);
@@ -80,7 +83,14 @@ export default function SyncPage() {
       link.remove();
       window.URL.revokeObjectURL(url);
       setDownloadedIds((current) => [...new Set([...current, item.id])]);
+      setSuccess(`Downloaded ${item.fileName} version ${item.version}.`);
     } catch (err) {
+      if (err.response?.status === 409) {
+        setDownloadedIds((current) => [...new Set([...current, item.id])]);
+        setSuccess(`${item.fileName} was already downloaded earlier.`);
+        setError("");
+        return;
+      }
       setError(err.response?.data?.error || "Download failed");
     }
   };
@@ -128,6 +138,7 @@ export default function SyncPage() {
             WiFi status: {wifiConnected ? `Connected to ${networkName || defaultNetworkName}` : "Disconnected"}
           </div>
           {error && <div className="muted">{error}</div>}
+          {success && <div className="muted">{success}</div>}
         </div>
       </div>
 

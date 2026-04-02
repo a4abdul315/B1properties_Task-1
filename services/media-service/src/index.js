@@ -145,7 +145,7 @@ const upload = multer({
 const sendNotification = async (type, message, payload) => {
   if (!NOTIFICATION_SERVICE_URL) return;
   try {
-    await axios.post(`${NOTIFICATION_SERVICE_URL}/notify`, { type, message, payload });
+    await axios.post(`${NOTIFICATION_SERVICE_URL}/notify`, { type, message, ...payload });
   } catch (err) {
     console.error(`[${SERVICE_NAME}] notification failed`, err.message);
   }

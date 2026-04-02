@@ -140,7 +140,6 @@ const authenticate = (req, res, next) => {
 
 const resolveSyncContext = (req) => {
   const requestedVillaId = typeof req.body.villaId === 'string' ? req.body.villaId.trim() : '';
-  const requestedUserId = typeof req.body.userId === 'string' ? req.body.userId.trim() : '';
 
   if (!req.user) {
     return { error: 'Unauthorized', status: 401 };
@@ -166,7 +165,7 @@ const resolveSyncContext = (req) => {
     }
 
     return {
-      userId: requestedUserId || req.user.id,
+      userId: req.user.id,
       villaId: requestedVillaId,
     };
   }
@@ -207,9 +206,6 @@ const handleSync = async (req, res, next) => {
     const deviceMap = normalizeDeviceVersions(deviceVersions);
     const mediaList = await fetchVillaMedia(villaId);
 
-    const previousLogs = await SyncLog.find({ userId, villaId, action: 'SYNC' }).lean();
-    const servedFileIds = new Set(previousLogs.map((log) => log.fileId));
-
     const updates = [];
 
     for (const media of mediaList) {
@@ -219,7 +215,6 @@ const handleSync = async (req, res, next) => {
       const needsUpdate = media.version > clientVersion || hashMismatch;
 
       if (!needsUpdate) continue;
-      if (servedFileIds.has(String(media._id))) continue;
 
       updates.push({
         id: media._id,
@@ -240,7 +235,7 @@ const handleSync = async (req, res, next) => {
         fileId: String(item.id),
         action: 'SYNC',
       }));
-      await SyncLog.insertMany(logs);
+      await SyncLog.insertMany(logs, { ordered: false });
     }
 
     console.log(`[${SERVICE_NAME}] sync completed`, {
