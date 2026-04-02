@@ -290,6 +290,12 @@ Then open the frontend in your browser, typically at:
 3. As a sales agent, enter the villa ID manually
 4. Optionally paste device version JSON
 5. Trigger WiFi sync
+6. Download any returned updates
+
+Sync downloads follow the same duplicate-download rule as the Media Library:
+
+- each user can download a given media file once
+- files already downloaded by that user are shown as already downloaded in the UI
 
 ### View All Villas
 1. Log in as sales agent
